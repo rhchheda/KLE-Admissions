@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Dashboard — KLE Admissions</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#C8102E;--navy:#1A1A2E;--green:#1A7F54;--gold:#D4A843;--g1:#F7F7F8;--g2:#EBEBED;--g4:#6B6B78;--radius:10px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#f0f0f5,#f9f4f4);min-height:100vh;color:var(--navy);}
+.wrap{max-width:1200px;margin:0 auto;padding:32px 16px;}
+
+/* HEADER */
+.hdr{background:var(--navy);border-radius:16px;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.hdr-left{display:flex;align-items:center;gap:16px;flex:1;}
+.hdr-logo img{height:48px;width:auto;filter:brightness(0) invert(1);}
+.hdr-text h1{font-family:'Playfair Display',serif;font-size:20px;color:#fff;}
+.hdr-text p{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;letter-spacing:0.05em;text-transform:uppercase;}
+.hdr-right{text-align:right;color:#fff;font-size:12px;}
+.hdr-right>div{margin-bottom:8px;}
+.sign-out-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:6px 12px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;transition:all 0.2s;}
+.sign-out-btn:hover{background:rgba(255,255,255,0.3);}
+
+/* LOGIN SCREEN */
+#loginScreen{display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;width:100%;height:100vh;background:linear-gradient(135deg,#f0f0f5,#f9f4f4);z-index:1000;}
+#loginScreen.hidden{display:none;}
+.login-box{background:#fff;border-radius:16px;padding:48px 36px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.15);}
+.login-box h1{font-family:'Playfair Display',serif;font-size:24px;color:var(--navy);margin-bottom:8px;}
+.login-box p{font-size:13px;color:var(--g4);margin-bottom:28px;}
+.login-fg{margin-bottom:18px;}
+.login-lb{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:6px;letter-spacing:0.05em;text-transform:uppercase;}
+.login-inp{width:100%;padding:12px 14px;border:1.5px solid var(--g2);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--navy);background:var(--g1);outline:none;transition:all 0.2s;}
+.login-inp:focus{border-color:var(--red);background:#fff;box-shadow:0 0 0 3px rgba(200,16,46,0.08);}
+.login-btn{width:100%;padding:13px;background:var(--red);color:#fff;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.03em;}
+.login-btn:hover{background:#9B0B22;}
+.login-err{color:var(--red);font-size:12px;margin-top:4px;display:none;}
+
+/* DASHBOARD CONTENT */
+.dashboard{display:none;}
+.dashboard.show{display:block;}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
+.kpi-card{background:#fff;border-radius:12px;padding:20px;border-left:4px solid var(--red);box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.kpi-card.gold{border-left-color:var(--gold);}
+.kpi-card.green{border-left-color:var(--green);}
+.kpi-card.navy{border-left-color:var(--navy);}
+.kpi-label{font-size:11px;color:var(--g4);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;}
+.kpi-value{font-size:32px;font-weight:700;color:var(--navy);line-height:1;}
+.kpi-sub{font-size:12px;color:var(--g4);margin-top:6px;}
+
+/* CHART CONTAINER */
+.chart-container{background:#fff;border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.chart-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:16px;}
+.chart-canvas{width:100%;height:auto;max-height:300px;}
+
+/* GRID 2COL */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:768px){.grid2{grid-template-columns:1fr;}}
+
+/* SECTION */
+.section{margin-bottom:28px;}
+.section-title{font-size:12px;font-weight:700;color:var(--g4);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--g2);}
+
+/* LIST */
+.list-item{background:#fff;border:1px solid var(--g2);border-left:3px solid var(--red);padding:12px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.list-label{font-weight:600;color:var(--navy);font-size:13px;}
+.list-value{font-size:13px;color:var(--g4);}
+
+/* CAMPUS COMPARE */
+.campus-row{display:flex;align-items:center;justify-content:space-between;padding:12px;border-bottom:1px solid var(--g2);}
+.campus-row:last-child{border-bottom:none;}
+.campus-name{font-weight:600;color:var(--navy);}
+.campus-metric{display:flex;gap:16px;font-size:12px;color:var(--g4);}
+
+/* LOADING */
+.loading{text-align:center;padding:40px;color:var(--g4);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1A1A2E;color:#fff;padding:14px 22px;border-radius:10px;font-size:13px;font-weight:600;display:none;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.3);}
+.toast.show{display:block;animation:slideUp 0.3s ease;}
+.toast.error{background:var(--red);}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>Officer Dashboard</h1>
+    <p>Sign in to view analytics</p>
+    <div class="login-fg">
+      <label class="login-lb">Username</label>
+      <input type="text" id="loginUser" class="login-inp" placeholder="your username"/>
+    </div>
+    <div class="login-fg">
+      <label class="login-lb">Password</label>
+      <input type="password" id="loginPass" class="login-inp" placeholder="your password" onkeypress="if(event.key==='Enter') handleLogin()"/>
+      <div class="login-err" id="loginErr"></div>
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="handleLogin()">Sign In</button>
+  </div>
+</div>
+
+<div class="wrap dashboard" id="dashboard">
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-logo" id="logoContainer" style="height:48px;width:100px;background:rgba(255,255,255,0.1);border:1px dashed rgba(255,255,255,0.3);border-radius:6px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:11px;">KLE TECH</div>
+      <div class="hdr-text">
+        <h1>Analytics Dashboard</h1>
+        <p id="dashboardSubtitle">Officer Dashboard</p>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div id="officerInfo"></div>
+      <button class="sign-out-btn" onclick="handleLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- LOADING STATE -->
+  <div id="loadingState" class="loading">
+    Loading dashboard…
+  </div>
+
+  <!-- KPI SECTION -->
+  <div id="kpiSection" style="display:none;">
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- STATUS BREAKDOWN -->
+    <div class="grid2">
+      <div class="chart-container">
+        <div class="chart-title">📊 Status Breakdown</div>
+        <canvas id="statusChart" class="chart-canvas"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-title">🎓 Top Courses</div>
+        <div id="topCoursesContainer" style="padding:16px 0;"></div>
+      </div>
+    </div>
+
+    <!-- COMPARATIVE (ADMIN ONLY) -->
+    <div id="campusCompareSection" style="display:none;margin-bottom:28px;">
+      <div class="chart-container">
+        <div class="chart-title">📍 Campus Comparison</div>
+        <div id="campusCompareContainer"></div>
+      </div>
+    </div>
+
+    <!-- RECENT DISCUSSIONS -->
+    <div class="section">
+      <p class="section-title">Recent Discussions</p>
+      <div id="recentDiscussionsContainer"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var sessionToken = localStorage.getItem('admissionOfficerToken') || '';
+var currentOfficer = JSON.parse(localStorage.getItem('admissionOfficer') || '{}');
+
+function handleLogin() {
+  var username = document.getElementById('loginUser').value.trim();
+  var password = document.getElementById('loginPass').value.trim();
+  var errEl = document.getElementById('loginErr');
+  var btn = document.getElementById('loginBtn');
+
+  if (!username || !password) {
+    errEl.textContent = 'Username and password required.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  errEl.style.display = 'none';
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+      if (result.valid) {
+        var token = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('admissionOfficerToken', token);
+        localStorage.setItem('admissionOfficer', JSON.stringify({
+          name: result.name,
+          campus: result.campus,
+          isAdmin: result.isAdmin
+        }));
+        sessionToken = token;
+        currentOfficer = { name: result.name, campus: result.campus, isAdmin: result.isAdmin };
+        checkAuthOnLoad();
+      } else {
+        errEl.textContent = result.message || 'Login failed.';
+        errEl.style.display = 'block';
+      }
+    })
+    .withFailureHandler(function(e) {
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+      errEl.textContent = 'Error: ' + e.message;
+      errEl.style.display = 'block';
+    })
+    .validateOfficerLogin(username, password);
+}
+
+function handleLogout() {
+  localStorage.removeItem('admissionOfficerToken');
+  localStorage.removeItem('admissionOfficer');
+  sessionToken = '';
+  currentOfficer = {};
+  checkAuthOnLoad();
+}
+
+function checkAuthOnLoad() {
+  if (sessionToken && currentOfficer.name) {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('dashboard').classList.add('show');
+    var info = currentOfficer.name + ' • ' + (currentOfficer.isAdmin ? 'All Campuses' : currentOfficer.campus);
+    document.getElementById('officerInfo').textContent = info;
+    document.getElementById('dashboardSubtitle').textContent = currentOfficer.isAdmin ? 'Admin View' : 'Campus Dashboard';
+    loadDashboard();
+  } else {
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('dashboard').classList.remove('show');
+  }
+}
+
+function loadDashboard() {
+  var campus = currentOfficer.isAdmin ? 'All' : currentOfficer.campus;
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('kpiSection').style.display = 'none';
+
+  google.script.run
+    .withSuccessHandler(function(kpis) {
+      document.getElementById('loadingState').style.display = 'none';
+      if (kpis.error) {
+        document.getElementById('kpiSection').innerHTML = '<p style="color:var(--g4);padding:20px;">No data yet. Check back after candidates submit enquiries.</p>';
+        document.getElementById('kpiSection').style.display = 'block';
+        return;
+      }
+      renderDashboard(kpis);
+      document.getElementById('kpiSection').style.display = 'block';
+    })
+    .withFailureHandler(function(e) {
+      document.getElementById('loadingState').innerHTML = '<p style="color:var(--red);">Error loading dashboard: ' + e.message + '</p>';
+    })
+    .getKPIsByCampus(campus);
+}
+
+function renderDashboard(kpis) {
+  // KPI Cards
+  var kpiHtml = `
+    <div class="kpi-card red">
+      <div class="kpi-label">Total Leads</div>
+      <div class="kpi-value">${kpis.total}</div>
+    </div>
+    <div class="kpi-card gold">
+      <div class="kpi-label">Contact Rate</div>
+      <div class="kpi-value">${kpis.contactRate}%</div>
+      <div class="kpi-sub">${kpis.statusCount['Contacted'] + kpis.statusCount['Counselled'] + kpis.statusCount['Applied'] + kpis.statusCount['Dropped']} reached</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Conversion Rate</div>
+      <div class="kpi-value">${kpis.conversionRate}%</div>
+      <div class="kpi-sub">${kpis.statusCount['Applied']} applied</div>
+    </div>
+    <div class="kpi-card navy">
+      <div class="kpi-label">In Process</div>
+      <div class="kpi-value">${kpis.statusCount['Contacted'] + kpis.statusCount['Counselled']}</div>
+      <div class="kpi-sub">Active pipeline</div>
+    </div>
+  `;
+  document.getElementById('kpiGrid').innerHTML = kpiHtml;
+
+  // Status Breakdown Chart
+  renderStatusChart(kpis.statusCount);
+
+  // Top Courses
+  var coursesHtml = '';
+  kpis.topCourses.forEach(function(c, i) {
+    coursesHtml += `<div class="list-item"><span class="list-label">${i + 1}. ${c.course}</span><span class="list-value">${c.count} leads</span></div>`;
+  });
+  document.getElementById('topCoursesContainer').innerHTML = coursesHtml;
+
+  // Campus Comparison (admin only)
+  if (currentOfficer.isAdmin && kpis.campusBreakdown) {
+    var campusHtml = '<div class="campus-row" style="font-weight:700;border-bottom:2px solid var(--g2);"><div class="campus-name">Campus</div><div class="campus-metric"><span>Total</span><span>Applied</span><span>Rate</span></div></div>';
+    for (var camp in kpis.campusBreakdown) {
+      var data = kpis.campusBreakdown[camp];
+      var rate = ((data.applied / data.total) * 100).toFixed(1);
+      campusHtml += `<div class="campus-row"><span class="campus-name">${camp}</span><div class="campus-metric"><span>${data.total}</span><span>${data.applied}</span><span>${rate}%</span></div></div>`;
+    }
+    document.getElementById('campusCompareContainer').innerHTML = campusHtml;
+    document.getElementById('campusCompareSection').style.display = 'block';
+  }
+
+  // Recent Discussions
+  var discHtml = '';
+  if (kpis.recentDiscussions && kpis.recentDiscussions.length) {
+    kpis.recentDiscussions.forEach(function(d) {
+      var time = new Date(d.timestamp).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      discHtml += `<div class="list-item"><div><div class="list-label">Ref: ${d.refId}</div><div class="list-value" style="margin-top:4px;">${d.notes.substring(0, 60)}…</div></div><div style="font-size:11px;color:var(--g4);">${time}</div></div>`;
+    });
+  } else {
+    discHtml = '<div style="color:var(--g4);padding:12px;">No discussions yet.</div>';
+  }
+  document.getElementById('recentDiscussionsContainer').innerHTML = discHtml;
+}
+
+function renderStatusChart(statusCount) {
+  var canvas = document.getElementById('statusChart');
+  var ctx = canvas.getContext('2d');
+  var width = canvas.parentElement.offsetWidth;
+  canvas.width = width;
+  canvas.height = 250;
+
+  var statuses = ['New', 'Contacted', 'Counselled', 'Applied', 'Dropped'];
+  var counts = statuses.map(s => statusCount[s]);
+  var colors = ['#6B6B78', '#D4A843', '#1A1A2E', '#1A7F54', '#BBBBBE'];
+  var total = counts.reduce((a, b) => a + b, 0) || 1;
+
+  var x = 40, barWidth = width / statuses.length - 10, maxHeight = 200;
+
+  // Draw bars
+  counts.forEach(function(count, i) {
+    var height = (count / total) * maxHeight;
+    var y = 210 - height;
+    ctx.fillStyle = colors[i];
+    ctx.fillRect(x + i * (barWidth + 10), y, barWidth, height);
+
+    // Label
+    ctx.fillStyle = '#1A1A2E';
+    ctx.font = 'bold 12px DM Sans';
+    ctx.textAlign = 'center';
+    ctx.fillText(count, x + i * (barWidth + 10) + barWidth / 2, 235);
+
+    ctx.font = '11px DM Sans';
+    ctx.fillStyle = '#6B6B78';
+    ctx.fillText(statuses[i], x + i * (barWidth + 10) + barWidth / 2, 250);
+  });
+}
+
+window.addEventListener('load', checkAuthOnLoad);
+</script>
+</body>
+</html>
